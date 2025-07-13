@@ -1,30 +1,61 @@
 <!DOCTYPE html>
-<html lang="es-ES">
+<html lang="es-ES" prefix="og: https://ogp.me/ns#">
 <head>
+    <!-- Metadatos básicos -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="CV profesional de Pedro Ortiz Plaza - Administrativo y Programador de Sistemas">
     <meta name="keywords" content="CV, programador, sistemas, administrativo, desarrollo web, Java, PHP">
     <meta name="author" content="Pedro Ortiz Plaza">
     
-    <title data-translate="page_title">Pedro Ortiz Plaza - CV Profesional</title>
-    
-    <!-- Preconexión para mejorar el rendimiento -->
+    <!-- Preconexión para Font Awesome primero -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     
-    <!-- Fuentes y iconos -->
+    <!-- Cargar Font Awesome antes que otros estilos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Resto de metadatos -->
+    <meta name="robots" content="index, follow">
+    <meta name="revisit-after" content="7 days">
+    <meta name="language" content="Spanish">
+    <meta name="distribution" content="global">
+    
+    <!-- Metadatos para Open Graph -->
+    <meta property="og:title" content="Pedro Ortiz Plaza - CV Profesional">
+    <meta property="og:description" content="CV profesional de Pedro Ortiz Plaza - Administrativo y Programador de Sistemas">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pedroprogramacion.github.io/Mi_Portfolio/">
+    <meta property="og:image" content="https://pedroprogramacion.github.io/MULTIMEDIA/IMG/favicon.ico">
+    <meta property="og:site_name" content="CV Pedro Ortiz Plaza">
+    <meta property="og:locale" content="es_ES">
+    
+    <!-- Metadatos para Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pedro Ortiz Plaza - CV Profesional">
+    <meta name="twitter:description" content="CV profesional de Pedro Ortiz Plaza - Administrativo y Programador de Sistemas">
+    <meta name="twitter:image" content="https://pedroprogramacion.github.io/MULTIMEDIA/IMG/favicon.ico">
+    <meta name="twitter:site" content="@PedroProgramacion">
+    <meta name="twitter:creator" content="@PedroProgramacion">
+    
+    <!-- Fuentes de Google -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <title data-translate="page_title">Pedro Ortiz Plaza - CV Profesional</title>
     
     <!-- Favicon -->
     <link rel="icon" href="./MULTIMEDIA/IMG/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="./MULTIMEDIA/IMG/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./MULTIMEDIA/IMG/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./MULTIMEDIA/IMG/favicon-16x16.png">
+    <link rel="manifest" href="./MULTIMEDIA/IMG/site.webmanifest">
+    <link rel="mask-icon" href="./MULTIMEDIA/IMG/safari-pinned-tab.svg" color="#5bbad5">
     
+    <!-- Icono de la pagina -->
+    <link rel="icon" href="./MULTIMEDIA/IMGS/icono.jpg" type="image/x-icon">
+
     <!-- Hojas de estilo -->
     <link rel="stylesheet" href="./CSS/estiloscv.css">
-    
-    <!-- Preload para recursos críticos -->
-    <link rel="preload" href="./CSS/estiloscv.css" as="style">
     
     <!-- Estilos para banderas -->
     <style>
@@ -37,9 +68,19 @@
             vertical-align: middle;
             border: 1px solid #ddd;
         }
+        
+        /* Asegurar que los iconos sean visibles */
+        .fas, .fab, .far {
+            display: inline-block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+        }
     </style>
 </head>
 <body>
+    <!-- [El resto del contenido del cuerpo permanece exactamente igual] -->
     <!-- Botón modo oscuro con ARIA label -->
     <button id="toggle-dark-mode" class="dark-mode-toggle" aria-label="Alternar modo oscuro">
         <i class="fas fa-moon"></i>
@@ -79,8 +120,8 @@
                         <i class="fas fa-language" aria-hidden="true"></i> <span data-translate="menu_language">Idioma</span>
                     </button>
                     <ul class="language-dropdown-content" role="menu">
-                        <li><a href="#" data-lang="en" role="menuitem"><span class="flag-icon" style="background-image: url('https://flagcdn.com/w20/gb.png')"></span> English</a></li>
                         <li><a href="#" data-lang="es" role="menuitem"><span class="flag-icon" style="background-image: url('https://flagcdn.com/w20/es.png')"></span> Español</a></li>
+                        <li><a href="#" data-lang="en" role="menuitem"><span class="flag-icon" style="background-image: url('https://flagcdn.com/w20/gb.png')"></span> English</a></li>
                         <li><a href="#" data-lang="fr" role="menuitem"><span class="flag-icon" style="background-image: url('https://flagcdn.com/w20/fr.png')"></span> Français</a></li>
                         <li><a href="#" data-lang="de" role="menuitem"><span class="flag-icon" style="background-image: url('https://flagcdn.com/w20/de.png')"></span> Deutsch</a></li>
                         <li><a href="#" data-lang="it" role="menuitem"><span class="flag-icon" style="background-image: url('https://flagcdn.com/w20/it.png')"></span> Italiano</a></li>
@@ -125,7 +166,6 @@
                         <div class="timeline-content">
                             <h3 data-translate="internship_title">Prácticas de Formación Profesional</h3>
                             <p data-translate="admin_degree">Alcomasa - 520 horas de practicas</p>
-
                         </div>
                     </article>
                     
@@ -144,6 +184,7 @@
             <section id="formacionacademica" class="section-card" aria-labelledby="education-heading">
                 <h2 id="education-heading"><i class="fas fa-graduation-cap section-icon" aria-hidden="true"></i> <span data-translate="menu_education">Formación Académica</span></h2>
                 <div class="timeline">
+                    
                     <!-- Formación 1 -->
                     <article class="timeline-item">
                         <div class="timeline-date">2025</div>
