@@ -574,7 +574,7 @@ img {
     overflow: hidden; /* Oculta cualquier desbordamiento */
     border: none; /* Sin borde */
     cursor: pointer; /* Cursor pointer para indicar interactividad */
-    margin: 0 auto; /* Centrado horizontal */
+    margin: 2rem auto 0; /* Margen superior aumentado para separación */
 }
 
 /* Efecto hover para el botón */
@@ -1298,14 +1298,19 @@ enlaces y redes sociales con efectos interactivos.
     .language-dropdown {
         order: 1; /* Orden de visualización (primero) */
     }
-    
-    /* Botón de descarga CV */
+
     .download-cv-btn {
-        order: 2; /* Orden de visualización (segundo) */
-        padding: 0.8rem 1.5rem; /* Espaciado interno ajustado */
-        margin: 0; /* Elimina márgenes para móviles */
+        padding: 0.7rem 1.4rem; /* Espaciado más compacto */
+        font-size: 0.82rem; /* Tamaño de fuente reducido */
+        margin-top: 1.2rem; /* Margen superior ajustado */
+        gap: 0.5rem; /* Espacio entre icono/texto reducido */
     }
-    
+
+     /* Optimización para dispositivos táctiles */
+    .download-cv-btn:hover {
+        transform: none; /* Elimina levitación en móviles */
+    }
+
     /* Contenido del dropdown de idiomas */
     .language-dropdown-content {
         position: fixed; /* Posicionamiento fijo */
@@ -1395,7 +1400,17 @@ enlaces y redes sociales con efectos interactivos.
     
     /* Botón de descarga CV */
     .download-cv-btn {
-        padding: 0.7rem 1.2rem; /* Espaciado interno muy reducido */
+        pad.download-cv-btn {
+        padding: 0.65rem 1.2rem; /* Espaciado mínimo */
+        font-size: 0.78rem; /* Fuente muy pequeña */
+        margin-top: 1rem; /* Margen superior mínimo */
+    }
+
+    /* Desactiva animaciones complejas en móviles */
+    .download-cv-btn:hover i.fa-download {
+        animation: none;
+    }
+    padding: 0.7rem 1.2rem; /* Espaciado interno muy reducido */
         font-size: 0.8rem; /* Tamaño de fuente muy reducido */
     }
     
@@ -1412,9 +1427,17 @@ enlaces y redes sociales con efectos interactivos.
     }
 }
 
+/* Móviles muy pequeños (360px o menos) */
+@media (max-width: 360px) {
+    .download-cv-btn {
+        width: 100%; /* Ancho completo */
+        justify-content: center; /* Centra el contenido */
+        padding: 0.6rem; /* Espaciado uniforme */
+    }
+
 /* 
-   ================== ANIMACIONES Y EFECTOS ================== 
-   Definiciones de animaciones para mejorar la experiencia de usuario
+================== ANIMACIONES Y EFECTOS ================== 
+Definiciones de animaciones para mejorar la experiencia de usuario
 */
 
 /* Animación de aparición gradual (fade in) */
@@ -1501,4 +1524,5 @@ enlaces y redes sociales con efectos interactivos.
         -webkit-print-color-adjust: exact; /* Asegura colores en WebKit */
         print-color-adjust: exact; /* Estándar para imprimir colores */
     }
+}
 }

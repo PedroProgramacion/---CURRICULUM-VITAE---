@@ -147,6 +147,499 @@ document.addEventListener('DOMContentLoaded', function() {
     checkTheme();
 });
 
+// ================== SISTEMA DE DESCARGA DE CV MEJORADO ==================
+
+class CVDownloadManager {
+    constructor() {
+        this.basePaths = [
+            './MULTIMEDIA/PDF/',
+            './MULTIMEDIA/PDF/CV/',
+            '../MULTIMEDIA/PDF/',
+            'MULTIMEDIA/PDF/',
+            './assets/pdf/',
+            './docs/'
+        ];
+        
+        this.fileVariants = [
+            'CV_PedroOrtizPlaza.pdf',
+            'Currículum Vitae Local (CVL) - Pedro Ortiz Plaza .pdf',
+            'CURRICULUMVÍTAE-PedroOrtizPlaza.pdf',
+            'Curriculum_Vitae_Pedro_Ortiz.pdf',
+            'CV-Pedro-Ortiz-Plaza.pdf',
+            'cv.pdf'
+        ];
+        
+        this.notificationQueue = [];
+        this.isDownloading = false;
+    }
+
+    /**
+     * Verifica si un archivo existe de forma más eficiente
+     * @param {string} url - URL del archivo
+     * @returns {Promise<boolean>}
+     */
+    async checkFileExists(url) {
+        try {
+            const response = await fetch(url, { 
+                method: 'HEAD',
+                cache: 'no-cache'
+            });
+            return response.ok && response.status === 200;
+        } catch (error) {
+            console.warn(`Error verificando ${url}:`, error);
+            return false;
+        }
+    }
+
+    /**
+     * Encuentra la primera ruta válida del CV
+     * @returns {Promise<string|null>}
+     */
+    async findValidCVPath() {
+        // Crear todas las combinaciones posibles
+        const allPaths = [];
+        for (const basePath of this.basePaths) {
+            for (const fileName of this.fileVariants) {
+                allPaths.push(basePath + fileName);
+            }
+        }
+
+        // Buscar en paralelo para mayor eficiencia
+        const promises = allPaths.map(async (path) => {
+            const exists = await this.checkFileExists(path);
+            return exists ? path : null;
+        });
+
+        const results = await Promise.all(promises);
+        return results.find(path => path !== null) || null;
+    }
+
+    /**
+     * Inicia la descarga del archivo
+     * @param {string} filePath - Ruta del archivo
+     * @param {string} fileName - Nombre para la descarga
+     */
+    initiateDownload(filePath, fileName = 'CV_PedroOrtizPlaza.pdf') {
+        try {
+            // Crear enlace de descarga
+            const link = document.createElement('a');
+            link.href = filePath;
+            link.download = fileName;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            
+            // Agregar al DOM temporalmente
+            document.body.appendChild(link);
+            
+            // Simular click
+            link.click();
+            
+            // Limpiar
+            document.body.removeChild(link);
+            
+            // Confirmar descarga
+            this.showNotification('Descarga iniciada correctamente', 'success');
+            
+            // Verificar descarga después de un tiempo
+            setTimeout(() => this.verifyDownload(filePath), 2000);
+            
+        } catch (error) {
+            console.error('Error en la descarga:', error);
+            this.showNotification('Error al iniciar la descarga', 'error');
+        }
+    }
+
+    /**
+     * Verifica si la descarga fue exitosa
+     * @param {string} filePath - Ruta del archivo descargado
+     */
+    async verifyDownload(filePath) {
+        try {
+            const exists = await this.checkFileExists(filePath);
+            if (!exists) {
+                this.showNotification('La descarga puede haber fallado. Intente nuevamente.', 'warning');
+            }
+        } catch (error) {
+            console.warn('No se pudo verificar la descarga:', error);
+        }
+    }
+
+    /**
+     * Muestra notificaciones mejoradas
+     * @param {string} message - Mensaje a mostrar
+     * @param {string} type - Tipo de notificación
+     */
+    showNotification(message, type = 'info') {
+        // Evitar spam de notificaciones
+        if (this.notificationQueue.some(n => n.message === message)) {
+            return;
+        }
+
+        const notification = {
+            message,
+            type,
+            id: Date.now()
+        };
+
+        this.notificationQueue.push(notification);
+        this.displayNotification(notification);
+
+        // Auto-eliminar después de 5 segundos
+        setTimeout(() => {
+            this.removeNotification(notification.id);
+        }, 5000);
+    }
+
+    /**
+     * Muestra la notificación en el DOM
+     * @param {Object} notification - Objeto de notificación
+     */
+    displayNotification(notification) {
+        const notificationElement = document.createElement('div');
+        notificationElement.className = `cv-notification ${notification.type}`;
+        notificationElement.setAttribute('data-notification-id', notification.id);
+        notificationElement.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${this.getNotificationIcon(notification.type)}</span>
+                <span class="notification-message">${notification.message}</span>
+                <button class="notification-close" onclick="cvManager.removeNotification(${notification.id})">×</button>
+            </div>
+        `;
+
+        // Estilos mejorados
+        Object.assign(notificationElement.style, {
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            minWidth: '300px',
+            maxWidth: '400px',
+            padding: '0',
+            background: this.getNotificationColor(notification.type),
+            color: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            zIndex: '10000',
+            opacity: '0',
+            transform: 'translateX(100%)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            fontFamily: 'Arial, sans-serif',
+            fontSize: '14px'
+        });
+
+        // Estilos para el contenido
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification-content {
+                display: flex;
+                align-items: center;
+                padding: 15px;
+                gap: 10px;
+            }
+            .notification-icon {
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+            .notification-message {
+                flex: 1;
+                line-height: 1.4;
+            }
+            .notification-close {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+                padding: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: background 0.2s;
+            }
+            .notification-close:hover {
+                background: rgba(255,255,255,0.2);
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.body.appendChild(notificationElement);
+
+        // Animación de entrada
+        requestAnimationFrame(() => {
+            notificationElement.style.opacity = '1';
+            notificationElement.style.transform = 'translateX(0)';
+        });
+    }
+
+    /**
+     * Elimina una notificación
+     * @param {number} notificationId - ID de la notificación
+     */
+    removeNotification(notificationId) {
+        const element = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        if (element) {
+            element.style.opacity = '0';
+            element.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                element.remove();
+            }, 300);
+        }
+
+        // Eliminar de la cola
+        this.notificationQueue = this.notificationQueue.filter(n => n.id !== notificationId);
+    }
+
+    /**
+     * Obtiene el icono para cada tipo de notificación
+     * @param {string} type - Tipo de notificación
+     * @returns {string}
+     */
+    getNotificationIcon(type) {
+        const icons = {
+            success: '✓',
+            error: '✗',
+            warning: '⚠',
+            info: 'ℹ'
+        };
+        return icons[type] || icons.info;
+    }
+
+    /**
+     * Obtiene el color para cada tipo de notificación
+     * @param {string} type - Tipo de notificación
+     * @returns {string}
+     */
+    getNotificationColor(type) {
+        const colors = {
+            success: 'linear-gradient(135deg, #4a6fa8, #357abd)',
+            error: 'linear-gradient(135deg, #e63946, #dc2626)',
+            warning: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            info: 'linear-gradient(135deg, #2a9d8f, #0891b2)'
+        };
+        return colors[type] || colors.info;
+    }
+
+    /**
+     * Muestra opciones alternativas cuando no se encuentra el archivo
+     */
+    showAlternativeOptions() {
+        const modal = document.createElement('div');
+        modal.className = 'cv-modal';
+        modal.innerHTML = `
+            <div class="cv-modal-content">
+                <div class="cv-modal-header">
+                    <h3>Archivo de CV no encontrado</h3>
+                    <button class="cv-modal-close" onclick="this.closest('.cv-modal').remove()">×</button>
+                </div>
+                <div class="cv-modal-body">
+                    <p>No se pudo encontrar el archivo de CV en las ubicaciones esperadas.</p>
+                    <div class="cv-modal-actions">
+                        <button class="cv-btn cv-btn-primary" onclick="cvManager.contactForCV()">
+                            📧 Solicitar CV por email
+                        </button>
+                        <button class="cv-btn cv-btn-secondary" onclick="cvManager.retryDownload()">
+                            🔄 Reintentar descarga
+                        </button>
+                        <button class="cv-btn cv-btn-secondary" onclick="window.open('https://github.com/PedroProgramacion', '_blank')">
+                            🔗 Ver Portfolio en GitHub
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Estilos del modal
+        const modalStyle = document.createElement('style');
+        modalStyle.textContent = `
+            .cv-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10001;
+                animation: fadeIn 0.3s ease;
+            }
+            .cv-modal-content {
+                background: white;
+                border-radius: 12px;
+                max-width: 500px;
+                width: 90%;
+                max-height: 80vh;
+                overflow: auto;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+            }
+            .cv-modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px;
+                border-bottom: 1px solid #eee;
+            }
+            .cv-modal-header h3 {
+                margin: 0;
+                color: #333;
+            }
+            .cv-modal-close {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #666;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: background 0.2s;
+            }
+            .cv-modal-close:hover {
+                background: #f5f5f5;
+            }
+            .cv-modal-body {
+                padding: 20px;
+            }
+            .cv-modal-actions {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+            .cv-btn {
+                padding: 10px 16px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .cv-btn-primary {
+                background: #4a6fa8;
+                color: white;
+            }
+            .cv-btn-primary:hover {
+                background: #357abd;
+            }
+            .cv-btn-secondary {
+                background: #f8f9fa;
+                color: #333;
+                border: 1px solid #dee2e6;
+            }
+            .cv-btn-secondary:hover {
+                background: #e9ecef;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideIn {
+                from { transform: translateY(-20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(modalStyle);
+
+        document.body.appendChild(modal);
+    }
+
+    /**
+     * Abre el cliente de email para solicitar el CV
+     */
+    contactForCV() {
+        const subject = encodeURIComponent('Solicitud de CV - Pedro Ortiz Plaza');
+        const body = encodeURIComponent(`Hola Pedro,
+
+Me gustaría solicitar tu CV actualizado.
+
+Gracias,
+`);
+        const mailtoLink = `mailto:ortizplazapedro5@gmail.com?subject=${subject}&body=${body}`;
+        
+        window.open(mailtoLink);
+        this.showNotification('Cliente de email abierto', 'success');
+    }
+
+    /**
+     * Reintenta la descarga del CV
+     */
+    async retryDownload() {
+        // Cerrar modal si existe
+        const modal = document.querySelector('.cv-modal');
+        if (modal) modal.remove();
+
+        await this.downloadCV();
+    }
+
+    /**
+     * Función principal para descargar el CV
+     */
+    async downloadCV() {
+        if (this.isDownloading) {
+            this.showNotification('Descarga en progreso...', 'info');
+            return;
+        }
+
+        this.isDownloading = true;
+        this.showNotification('Buscando archivo de CV...', 'info');
+
+        try {
+            const validPath = await this.findValidCVPath();
+            
+            if (validPath) {
+                this.initiateDownload(validPath);
+            } else {
+                this.showNotification('No se encontró el archivo de CV', 'error');
+                this.showAlternativeOptions();
+            }
+        } catch (error) {
+            console.error('Error en downloadCV:', error);
+            this.showNotification('Error al buscar el archivo', 'error');
+            this.showAlternativeOptions();
+        } finally {
+            this.isDownloading = false;
+        }
+    }
+
+    /**
+     * Inicializa el sistema de descarga
+     */
+    init() {
+        document.addEventListener('DOMContentLoaded', () => {
+            const downloadBtn = document.getElementById('download-cv');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadCV();
+                });
+            }
+        });
+    }
+}
+
+// Instancia global del manager
+const cvManager = new CVDownloadManager();
+
+// Inicializar cuando se carga el DOM
+cvManager.init();
+
+// Exportar para uso global
+window.cvManager = cvManager;
+
+
+
 // ================== SISTEMA DE TRADUCCIÓN MEJORADO ==================
 document.addEventListener('DOMContentLoaded', function() {
     // Textos traducidos para 10 idiomas (actualizado y completo)
